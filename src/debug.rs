@@ -3,6 +3,27 @@ use bevy::prelude::*;
 use bevy::render::camera::Camera;
 use bevy::render::camera::RenderLayers;
 
+pub struct DebugPlugin;
+const RENDER_LAYER: u8 = 1;
+
+impl Plugin for DebugPlugin {
+    fn build(&self, app: &mut AppBuilder) {
+        app.add_startup_system(setup.system())
+            .add_plugin(FrameTimeDiagnosticsPlugin)
+            .add_state(DebugState::Disabled)
+            .add_system_set(
+                SystemSet::on_enter(DebugState::Disabled).with_system(hide_debug.system()),
+            )
+            .add_system_set(
+                SystemSet::on_enter(DebugState::Enabled).with_system(show_debug.system()),
+            )
+            .add_system_set(
+                SystemSet::on_update(DebugState::Enabled).with_system(update_frame_data.system()),
+            )
+            .add_system(debug_state_toggle.system());
+    }
+}
+
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum DebugState {
     Enabled,
@@ -70,19 +91,19 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             },
             ..Default::default()
         })
-        .insert(RenderLayers::layer(1))
+        .insert(RenderLayers::layer(RENDER_LAYER))
         .insert(FPSText);
 }
 
 pub fn hide_debug(_commands: Commands, query: Query<&mut RenderLayers, With<Camera>>) {
     query.for_each_mut(|mut r| {
-        *r = r.without(1);
+        *r = r.without(RENDER_LAYER);
     });
 }
 
 pub fn show_debug(_commands: Commands, query: Query<&mut RenderLayers, With<Camera>>) {
     query.for_each_mut(|mut r| {
-        *r = r.with(1);
+        *r = r.with(RENDER_LAYER);
     });
 }
 
@@ -110,5 +131,21 @@ pub fn update_frame_data(
         text.sections[1].value = format!("{:.1}", fps);
 
         text.sections[3].value = format!("{:.3}", frame_time * 1000.0);
+    }
+}
+
+fn debug_state_toggle(
+    keyboard_input: Res<Input<KeyCode>>,
+    mut debug_state: ResMut<State<DebugState>>,
+) {
+    if keyboard_input.just_pressed(KeyCode::F1) {
+        let curr = *debug_state.current();
+        debug_state
+            .set(if curr == DebugState::Disabled {
+                DebugState::Enabled
+            } else {
+                DebugState::Disabled
+            })
+            .unwrap();
     }
 }
