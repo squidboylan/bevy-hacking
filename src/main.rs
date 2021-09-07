@@ -1,6 +1,4 @@
 use bevy::prelude::*;
-use bevy::render::mesh::Indices;
-use bevy::render::pipeline::PrimitiveTopology;
 
 mod debug;
 
@@ -9,11 +7,7 @@ struct Player;
 const SCREEN_WIDTH: f32 = 1280.0;
 const SCREEN_HEIGHT: f32 = 720.0;
 
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
+fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     commands
         .spawn_bundle(SpriteBundle {
