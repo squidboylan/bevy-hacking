@@ -2,6 +2,11 @@ use bevy::diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::render::camera::Camera;
 use bevy::render::camera::RenderLayers;
+use bevy_prototype_lyon::prelude::*;
+
+use crate::path::ClearQuads;
+use crate::path::QUAD_SIZE;
+use crate::screen::*;
 
 pub struct DebugPlugin;
 const RENDER_LAYER: u8 = 1;
@@ -9,6 +14,7 @@ const RENDER_LAYER: u8 = 1;
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_startup_system(setup.system())
+            .add_plugin(ShapePlugin)
             .add_plugin(FrameTimeDiagnosticsPlugin)
             .add_state(DebugState::Disabled)
             .add_system_set(
@@ -33,7 +39,7 @@ pub enum DebugState {
 pub struct FPSText;
 pub struct UiCamera;
 
-pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>, path_quads: Res<ClearQuads>) {
     commands
         .spawn_bundle(UiCameraBundle::default())
         .insert(RenderLayers::all())
@@ -93,6 +99,34 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         })
         .insert(RenderLayers::layer(RENDER_LAYER))
         .insert(FPSText);
+
+    let shape = shapes::Rectangle {
+        width: QUAD_SIZE - 1.,
+        height: QUAD_SIZE - 1.,
+        ..shapes::Rectangle::default()
+    };
+
+    for (i, _) in path_quads.0.iter().enumerate() {
+        let x = i * QUAD_SIZE as usize % SCREEN_WIDTH as usize;
+        let y = (i * QUAD_SIZE as usize / SCREEN_WIDTH as usize) * QUAD_SIZE as usize;
+        println!("x: {}", x);
+        println!("y: {}", y);
+        commands
+            .spawn_bundle(GeometryBuilder::build_as(
+                &shape,
+                ShapeColors::outlined(Color::rgba(0., 0., 0., 0.), Color::rgba(0., 0., 0., 0.5)),
+                DrawMode::Outlined {
+                    fill_options: FillOptions::default(),
+                    outline_options: StrokeOptions::default().with_line_width(1.0),
+                },
+                Transform::from_xyz(
+                    (x as f32) + QUAD_SIZE / 2. - SCREEN_WIDTH / 2.,
+                    (y as f32) + QUAD_SIZE / 2. - SCREEN_HEIGHT / 2.,
+                    1.0,
+                ),
+            ))
+            .insert(RenderLayers::layer(RENDER_LAYER));
+    }
 }
 
 pub fn hide_debug(_commands: Commands, query: Query<&mut RenderLayers, With<Camera>>) {
