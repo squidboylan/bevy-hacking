@@ -210,6 +210,7 @@ name = "bevy-hacking"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy_prototype_lyon",
 ]
 
 [[package]]
@@ -454,6 +455,15 @@ dependencies = [
  "bevy_render",
  "bevy_transform",
  "bevy_window",
+]
+
+[[package]]
+name = "bevy_prototype_lyon"
+version = "0.3.1"
+dependencies = [
+ "bevy",
+ "lyon_tessellation",
+ "svgtypes",
 ]
 
 [[package]]
@@ -1234,6 +1244,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "398ea4fabe40b9b0d885340a2a991a44c8a645624075ad966d21f88688e2b69e"
 
 [[package]]
+name = "float-cmp"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75224bec9bfe1a65e2d34132933f2de7fe79900c96a0174307554244ece8150e"
+
+[[package]]
+name = "float_next_after"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4fc612c5837986b7104a87a0df74a5460931f1c5274be12f8d0f40aa2f30d632"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1942,6 +1967,38 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "51b9bbe6c47d51fc3e1a9b945965946b4c44142ab8792c50835a980d362c2710"
 dependencies = [
  "cfg-if 1.0.0",
+]
+
+[[package]]
+name = "lyon_geom"
+version = "0.17.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe153a6ce93cb97c85ba47a007fd437079bbff5592b9c0f77195973b8b169d69"
+dependencies = [
+ "arrayvec",
+ "euclid",
+ "num-traits",
+]
+
+[[package]]
+name = "lyon_path"
+version = "0.17.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ef7433accd4515fc98f59bb3cdf565a9615f0c666f50bfcb96134bbd91ccc04"
+dependencies = [
+ "lyon_geom",
+]
+
+[[package]]
+name = "lyon_tessellation"
+version = "0.17.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56799e28a041fa98b0865a93d2e19f64de3c8f2708bfe96b8af5c7d491aef468"
+dependencies = [
+ "arrayvec",
+ "float_next_after",
+ "lyon_path",
+ "sid",
 ]
 
 [[package]]
@@ -2827,6 +2884,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fdf1b9db47230893d76faad238fd6097fd6d6a9245cd7a4d90dbd639536bbd2"
 
 [[package]]
+name = "sid"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd5ac56c121948b4879bba9e519852c211bcdd8f014efff766441deff0b91bdb"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
+name = "siphasher"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b8de496cf83d4ed58b6be86c3a275b8602f6ffe98d3024a869e124147a9a3ac"
+
+[[package]]
 name = "slab"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3013,6 +3085,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8fb1df15f412ee2e9dfc1c504260fa695c1c3f10fe9f4a6ee2d2184d7d6450e2"
 
 [[package]]
+name = "svgtypes"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c536faaff1a10837cfe373142583f6e27d81e96beba339147e77b67c9f260ff"
+dependencies = [
+ "float-cmp",
+ "siphasher",
+]
+
+[[package]]
 name = "syn"
 version = "1.0.65"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3025,18 +3107,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.28"
+version = "1.0.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "283d5230e63df9608ac7d9691adc1dfb6e701225436eb64d0b9a7f0a5a04f6ec"
+checksum = "602eca064b2d83369e2b2f34b09c70b605402801927c65c11071ac911d299b88"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.28"
+version = "1.0.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa3884228611f5cd3608e2d409bf7dce832e4eb3135e3f11addbd7e41bd68e71"
+checksum = "bad553cc2c78e8de258400763a647e80e6d1b31ee237275d756f6836d204494c"
 dependencies = [
  "proc-macro2",
  "quote",
