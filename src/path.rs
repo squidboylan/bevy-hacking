@@ -4,7 +4,7 @@ use crate::screen::*;
 
 pub struct ClearQuads(pub Vec<bool>);
 
-pub const QUAD_SIZE: f32 = 16.;
+pub const QUAD_SIZE: f32 = 8.;
 
 impl ClearQuads {
     pub fn new() -> Self {

@@ -4,7 +4,6 @@ use bevy::render::camera::Camera;
 use bevy::render::camera::RenderLayers;
 use bevy_prototype_lyon::prelude::*;
 
-use crate::path::ClearQuads;
 use crate::path::QUAD_SIZE;
 use crate::screen::*;
 
@@ -39,7 +38,7 @@ pub enum DebugState {
 pub struct FPSText;
 pub struct UiCamera;
 
-pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>, path_quads: Res<ClearQuads>) {
+pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn_bundle(UiCameraBundle::default())
         .insert(RenderLayers::all())
@@ -100,12 +99,41 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>, path_quads:
         .insert(RenderLayers::layer(RENDER_LAYER))
         .insert(FPSText);
 
-    let shape = shapes::Rectangle {
-        width: QUAD_SIZE - 1.,
-        height: QUAD_SIZE - 1.,
-        ..shapes::Rectangle::default()
-    };
+    let line = shapes::Line(
+        Vec2::new(0., -SCREEN_HEIGHT / 2.),
+        Vec2::new(0., SCREEN_HEIGHT / 2.),
+    );
+    let mut x = -SCREEN_WIDTH / 2.;
 
+    while x <= SCREEN_WIDTH / 2. {
+        commands
+            .spawn_bundle(GeometryBuilder::build_as(
+                &line,
+                ShapeColors::new(Color::rgba(0., 0., 0., 0.5)),
+                DrawMode::Stroke(StrokeOptions::default().with_line_width(1.)),
+                Transform::from_xyz(x, 0., 1.),
+            ))
+            .insert(RenderLayers::layer(RENDER_LAYER));
+        x += QUAD_SIZE;
+    }
+    let line = shapes::Line(
+        Vec2::new(-SCREEN_WIDTH / 2., 0.),
+        Vec2::new(SCREEN_WIDTH / 2., 0.),
+    );
+    let mut y = -SCREEN_HEIGHT / 2.;
+    while y <= SCREEN_HEIGHT / 2. {
+        commands
+            .spawn_bundle(GeometryBuilder::build_as(
+                &line,
+                ShapeColors::new(Color::rgba(0., 0., 0., 0.5)),
+                DrawMode::Stroke(StrokeOptions::default().with_line_width(1.)),
+                Transform::from_xyz(0., y, 1.),
+            ))
+            .insert(RenderLayers::layer(RENDER_LAYER));
+        y += QUAD_SIZE;
+    }
+
+    /*
     for (i, _) in path_quads.0.iter().enumerate() {
         let x = i * QUAD_SIZE as usize % SCREEN_WIDTH as usize;
         let y = (i * QUAD_SIZE as usize / SCREEN_WIDTH as usize) * QUAD_SIZE as usize;
@@ -127,6 +155,7 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>, path_quads:
             ))
             .insert(RenderLayers::layer(RENDER_LAYER));
     }
+    */
 }
 
 pub fn hide_debug(_commands: Commands, mut query: Query<&mut RenderLayers, With<Camera>>) {
