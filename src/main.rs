@@ -23,7 +23,7 @@ fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
 }
 
 fn main() {
-    App::build()
+    App::new()
         .insert_resource(WindowDescriptor {
             //vsync: false,
             width: SCREEN_WIDTH,

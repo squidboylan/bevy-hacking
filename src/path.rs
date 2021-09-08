@@ -4,7 +4,7 @@ use crate::screen::*;
 
 pub struct ClearQuads(pub Vec<bool>);
 
-pub const QUAD_SIZE: f32 = 8.;
+pub const QUAD_SIZE: f32 = 16.;
 
 impl ClearQuads {
     pub fn new() -> Self {
@@ -18,7 +18,7 @@ impl ClearQuads {
 
 pub struct PathPlugin;
 impl Plugin for PathPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app.insert_resource(ClearQuads::new());
     }
 }

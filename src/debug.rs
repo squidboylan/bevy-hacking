@@ -12,7 +12,7 @@ pub struct DebugPlugin;
 const RENDER_LAYER: u8 = 1;
 
 impl Plugin for DebugPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app.add_startup_system(setup.system())
             .add_plugin(ShapePlugin)
             .add_plugin(FrameTimeDiagnosticsPlugin)
@@ -129,13 +129,13 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>, path_quads:
     }
 }
 
-pub fn hide_debug(_commands: Commands, query: Query<&mut RenderLayers, With<Camera>>) {
+pub fn hide_debug(_commands: Commands, mut query: Query<&mut RenderLayers, With<Camera>>) {
     query.for_each_mut(|mut r| {
         *r = r.without(RENDER_LAYER);
     });
 }
 
-pub fn show_debug(_commands: Commands, query: Query<&mut RenderLayers, With<Camera>>) {
+pub fn show_debug(_commands: Commands, mut query: Query<&mut RenderLayers, With<Camera>>) {
     query.for_each_mut(|mut r| {
         *r = r.with(RENDER_LAYER);
     });
