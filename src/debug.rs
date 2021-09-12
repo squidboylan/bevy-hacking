@@ -4,6 +4,8 @@ use bevy::render::camera::Camera;
 use bevy::render::camera::RenderLayers;
 use bevy_prototype_lyon::prelude::*;
 
+use crate::path::PathGrid;
+use crate::path::PathQuad;
 use crate::path::QUAD_SIZE;
 use crate::screen::*;
 
@@ -16,6 +18,7 @@ impl Plugin for DebugPlugin {
             .add_plugin(ShapePlugin)
             .add_plugin(FrameTimeDiagnosticsPlugin)
             .add_state(DebugState::Disabled)
+            .add_system(update_debug_collision_grid.system())
             .add_system_set(
                 SystemSet::on_enter(DebugState::Disabled).with_system(hide_debug.system()),
             )
@@ -132,30 +135,6 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             .insert(RenderLayers::layer(RENDER_LAYER));
         y += QUAD_SIZE;
     }
-
-    /*
-    for (i, _) in path_quads.0.iter().enumerate() {
-        let x = i * QUAD_SIZE as usize % SCREEN_WIDTH as usize;
-        let y = (i * QUAD_SIZE as usize / SCREEN_WIDTH as usize) * QUAD_SIZE as usize;
-        println!("x: {}", x);
-        println!("y: {}", y);
-        commands
-            .spawn_bundle(GeometryBuilder::build_as(
-                &shape,
-                ShapeColors::outlined(Color::rgba(0., 0., 0., 0.), Color::rgba(0., 0., 0., 0.5)),
-                DrawMode::Outlined {
-                    fill_options: FillOptions::default(),
-                    outline_options: StrokeOptions::default().with_line_width(1.0),
-                },
-                Transform::from_xyz(
-                    (x as f32) + QUAD_SIZE / 2. - SCREEN_WIDTH / 2.,
-                    (y as f32) + QUAD_SIZE / 2. - SCREEN_HEIGHT / 2.,
-                    1.0,
-                ),
-            ))
-            .insert(RenderLayers::layer(RENDER_LAYER));
-    }
-    */
 }
 
 pub fn hide_debug(_commands: Commands, mut query: Query<&mut RenderLayers, With<Camera>>) {
@@ -210,5 +189,41 @@ fn debug_state_toggle(
                 DebugState::Disabled
             })
             .unwrap();
+    }
+}
+
+struct PathQuadIndex(usize);
+
+fn update_debug_collision_grid(
+    mut commands: Commands,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut collision_grid: ResMut<PathGrid>,
+    mut query: Query<(Entity, &PathQuadIndex)>,
+) {
+    for (e, i) in query.iter_mut() {
+        if !collision_grid.0[i.0].contains(PathQuad::OCCUPIED) {
+            commands.entity(e).despawn();
+        }
+    }
+    for (i, c) in collision_grid.0.iter_mut().enumerate() {
+        if c.contains(PathQuad::CHANGED | PathQuad::OCCUPIED) {
+            let x = i * QUAD_SIZE as usize % SCREEN_WIDTH as usize;
+            let y = (i * QUAD_SIZE as usize / SCREEN_WIDTH as usize) * QUAD_SIZE as usize;
+            commands
+                .spawn_bundle(SpriteBundle {
+                    material: materials.add(Color::rgba(1.0, 0.0, 0.0, 0.5).into()),
+                    transform: Transform::from_xyz(
+                        (x as f32) + QUAD_SIZE / 2. - SCREEN_WIDTH / 2.,
+                        (y as f32) + QUAD_SIZE / 2. - SCREEN_HEIGHT / 2.,
+                        1.0,
+                    ),
+                    sprite: Sprite::new(Vec2::new(8.0, 8.0)),
+                    ..Default::default()
+                })
+                .insert(PathQuadIndex(i))
+                .insert(RenderLayers::layer(RENDER_LAYER));
+
+            c.remove(PathQuad::CHANGED);
+        }
     }
 }

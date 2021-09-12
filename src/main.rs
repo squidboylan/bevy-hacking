@@ -4,9 +4,8 @@ use bevy::render::camera::RenderLayers;
 mod debug;
 mod path;
 mod screen;
+use crate::path::Player;
 use crate::screen::*;
-
-struct Player;
 
 fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
     commands
@@ -20,17 +19,6 @@ fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
             ..Default::default()
         })
         .insert(Player);
-    /*
-    let shape = shapes::Line((-1000.0, -100.0).into(), (1000.0, 100.0).into());
-
-    commands.spawn_bundle(GeometryBuilder::build_as(
-        &shape,
-        ShapeColors::new(Color::BLACK),
-        DrawMode::Stroke(StrokeOptions::default().with_line_width(2.)),
-        //Transform::default(),
-        Transform::from_xyz(0.0, 100., 0.0),
-    ));
-    */
 }
 
 fn main() {
