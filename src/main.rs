@@ -35,5 +35,34 @@ fn main() {
         .add_plugin(path::PathPlugin)
         .add_plugin(debug::DebugPlugin)
         .add_startup_system(setup.system())
+        .add_system(player_movement.system())
         .run();
+}
+
+fn player_movement(
+    time: Res<Time>,
+    keyboard_input: Res<Input<KeyCode>>,
+    mut query: Query<&mut Transform, With<Player>>,
+) {
+    let delta = time.delta_seconds();
+    if keyboard_input.pressed(KeyCode::W) {
+        for mut p in query.iter_mut() {
+            p.translation += delta * Vec3::from((0.0, 100.0, 0.0));
+        }
+    }
+    if keyboard_input.pressed(KeyCode::S) {
+        for mut p in query.iter_mut() {
+            p.translation += delta * Vec3::from((0.0, -100.0, 0.0));
+        }
+    }
+    if keyboard_input.pressed(KeyCode::A) {
+        for mut p in query.iter_mut() {
+            p.translation += delta * Vec3::from((-100.0, 0.0, 0.0));
+        }
+    }
+    if keyboard_input.pressed(KeyCode::D) {
+        for mut p in query.iter_mut() {
+            p.translation += delta * Vec3::from((100.0, 0.0, 0.0));
+        }
+    }
 }

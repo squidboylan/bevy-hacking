@@ -217,7 +217,7 @@ fn update_debug_collision_grid(
                         (y as f32) + QUAD_SIZE / 2. - SCREEN_HEIGHT / 2.,
                         1.0,
                     ),
-                    sprite: Sprite::new(Vec2::new(8.0, 8.0)),
+                    sprite: Sprite::new(Vec2::new(QUAD_SIZE, QUAD_SIZE)),
                     ..Default::default()
                 })
                 .insert(PathQuadIndex(i))
