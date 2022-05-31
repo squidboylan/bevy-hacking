@@ -1,7 +1,7 @@
 use bevy::diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::render::camera::Camera;
-use bevy::render::camera::RenderLayers;
+use bevy::render::view::RenderLayers;
 use bevy_prototype_lyon::prelude::*;
 
 use crate::path::PathGrid;
@@ -14,21 +14,21 @@ const RENDER_LAYER: u8 = 1;
 
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup.system())
+        app.add_startup_system(setup)
             .add_plugin(ShapePlugin)
             .add_plugin(FrameTimeDiagnosticsPlugin)
             .add_state(DebugState::Disabled)
-            .add_system(update_debug_collision_grid.system())
+            .add_system(update_debug_collision_grid)
             .add_system_set(
-                SystemSet::on_enter(DebugState::Disabled).with_system(hide_debug.system()),
+                SystemSet::on_enter(DebugState::Disabled).with_system(hide_debug),
             )
             .add_system_set(
-                SystemSet::on_enter(DebugState::Enabled).with_system(show_debug.system()),
+                SystemSet::on_enter(DebugState::Enabled).with_system(show_debug),
             )
             .add_system_set(
-                SystemSet::on_update(DebugState::Enabled).with_system(update_frame_data.system()),
+                SystemSet::on_update(DebugState::Enabled).with_system(update_frame_data),
             )
-            .add_system(debug_state_toggle.system());
+            .add_system(debug_state_toggle);
     }
 }
 
@@ -38,7 +38,11 @@ pub enum DebugState {
     Disabled,
 }
 
+#[derive(Component)]
+#[component(storage = "SparseSet")]
 pub struct FPSText;
+#[derive(Component)]
+#[component(storage = "SparseSet")]
 pub struct UiCamera;
 
 pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -112,8 +116,7 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         commands
             .spawn_bundle(GeometryBuilder::build_as(
                 &line,
-                ShapeColors::new(Color::rgba(0., 0., 0., 0.5)),
-                DrawMode::Stroke(StrokeOptions::default().with_line_width(1.)),
+                DrawMode::Stroke(StrokeMode::new(Color::rgba(0., 0., 0., 0.5), 1.)),
                 Transform::from_xyz(x, 0., 1.),
             ))
             .insert(RenderLayers::layer(RENDER_LAYER));
@@ -128,8 +131,7 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         commands
             .spawn_bundle(GeometryBuilder::build_as(
                 &line,
-                ShapeColors::new(Color::rgba(0., 0., 0., 0.5)),
-                DrawMode::Stroke(StrokeOptions::default().with_line_width(1.)),
+                DrawMode::Stroke(StrokeMode::new(Color::rgba(0., 0., 0., 0.5), 1.)),
                 Transform::from_xyz(0., y, 1.),
             ))
             .insert(RenderLayers::layer(RENDER_LAYER));
@@ -192,6 +194,8 @@ fn debug_state_toggle(
     }
 }
 
+#[derive(Component)]
+#[component(storage = "Table")]
 struct PathQuadIndex(usize);
 
 fn update_debug_collision_grid(
@@ -211,13 +215,16 @@ fn update_debug_collision_grid(
             let y = (i * QUAD_SIZE as usize / SCREEN_WIDTH as usize) * QUAD_SIZE as usize;
             commands
                 .spawn_bundle(SpriteBundle {
-                    material: materials.add(Color::rgba(1.0, 0.0, 0.0, 0.5).into()),
                     transform: Transform::from_xyz(
                         (x as f32) + QUAD_SIZE / 2. - SCREEN_WIDTH / 2.,
                         (y as f32) + QUAD_SIZE / 2. - SCREEN_HEIGHT / 2.,
                         1.0,
                     ),
-                    sprite: Sprite::new(Vec2::new(QUAD_SIZE, QUAD_SIZE)),
+                    sprite: Sprite {
+                        color: Color::rgba(1.0, 0.0, 0.0, 0.5),
+                        custom_size: Some(Vec2::new(QUAD_SIZE, QUAD_SIZE)),
+                        ..Default::default()
+                    },
                     ..Default::default()
                 })
                 .insert(PathQuadIndex(i))

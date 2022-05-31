@@ -3,6 +3,8 @@ use bitflags::bitflags;
 
 use crate::screen::*;
 
+#[derive(Component)]
+#[component(storage = "SparseSet")]
 pub struct Player;
 
 bitflags! {
@@ -32,7 +34,7 @@ pub struct PathPlugin;
 impl Plugin for PathPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(PathGrid::new())
-            .add_system(update_collision_grid.system());
+            .add_system(update_collision_grid);
     }
 }
 
@@ -44,10 +46,10 @@ fn update_collision_grid(
         q.remove(PathQuad::STILL_OCCUPIED);
     }
     for (s, t) in query.iter() {
-        let p_x = t.translation.x - s.size.x / 2. + SCREEN_WIDTH / 2.;
-        let p_y = t.translation.y - s.size.y / 2. + SCREEN_HEIGHT / 2.;
-        let p_w = s.size.x;
-        let p_h = s.size.y;
+        let p_x = t.translation.x - s.custom_size.unwrap().x / 2. + SCREEN_WIDTH / 2.;
+        let p_y = t.translation.y - s.custom_size.unwrap().y / 2. + SCREEN_HEIGHT / 2.;
+        let p_w = s.custom_size.unwrap().x;
+        let p_h = s.custom_size.unwrap().y;
 
         let quad_x = p_x as usize / QUAD_SIZE as usize;
         let quad_y = p_y as usize / QUAD_SIZE as usize;

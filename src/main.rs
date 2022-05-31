@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy::render::camera::RenderLayers;
+use bevy::render::view::RenderLayers;
 
 mod debug;
 mod path;
@@ -13,9 +13,11 @@ fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
         .insert(RenderLayers::all());
     commands
         .spawn_bundle(SpriteBundle {
-            material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
-            transform: Transform::from_xyz(0.0, 0.0, 0.0),
-            sprite: Sprite::new(Vec2::new(32.0, 32.0)),
+            sprite: Sprite {
+                color: Color::rgb(0.5, 0.5, 1.0),
+                custom_size: Some(Vec2::new(32.0, 32.0)),
+                ..Default::default()
+            },
             ..Default::default()
         })
         .insert(Player);
@@ -27,15 +29,15 @@ fn main() {
             //vsync: false,
             width: SCREEN_WIDTH,
             height: SCREEN_HEIGHT,
-            scale_factor_override: Some(2.0),
+            scale_factor_override: Some(1.0),
             ..Default::default()
         })
         //.insert_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins)
         .add_plugin(path::PathPlugin)
         .add_plugin(debug::DebugPlugin)
-        .add_startup_system(setup.system())
-        .add_system(player_movement.system())
+        .add_startup_system(setup)
+        .add_system(player_movement)
         .run();
 }
 
