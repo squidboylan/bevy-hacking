@@ -7,10 +7,10 @@ mod screen;
 use crate::path::Player;
 use crate::screen::*;
 
-fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
+fn setup(mut commands: Commands) {
     commands
         .spawn_bundle(OrthographicCameraBundle::new_2d())
-        .insert(RenderLayers::all());
+        .insert(RenderLayers::layer(2));
     commands
         .spawn_bundle(SpriteBundle {
             sprite: Sprite {
@@ -26,7 +26,8 @@ fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
 fn main() {
     App::new()
         .insert_resource(WindowDescriptor {
-            //vsync: false,
+            //present_mode: bevy::window::PresentMode::Immediate,
+            present_mode: bevy::window::PresentMode::Fifo,
             width: SCREEN_WIDTH,
             height: SCREEN_HEIGHT,
             scale_factor_override: Some(1.0),

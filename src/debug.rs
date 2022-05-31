@@ -23,7 +23,13 @@ impl Plugin for DebugPlugin {
                 SystemSet::on_enter(DebugState::Disabled).with_system(hide_debug),
             )
             .add_system_set(
+                SystemSet::on_enter(DebugState::Disabled).with_system(hide_text),
+            )
+            .add_system_set(
                 SystemSet::on_enter(DebugState::Enabled).with_system(show_debug),
+            )
+            .add_system_set(
+                SystemSet::on_enter(DebugState::Enabled).with_system(show_text),
             )
             .add_system_set(
                 SystemSet::on_update(DebugState::Enabled).with_system(update_frame_data),
@@ -48,7 +54,7 @@ pub struct UiCamera;
 pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn_bundle(UiCameraBundle::default())
-        .insert(RenderLayers::all())
+        .insert(RenderLayers::none())
         .insert(UiCamera);
 
     let font = asset_server.load("fonts/FiraSans-Bold.ttf");
@@ -103,8 +109,8 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             },
             ..Default::default()
         })
-        .insert(RenderLayers::layer(RENDER_LAYER))
-        .insert(FPSText);
+        .insert(FPSText)
+        .insert(RenderLayers::layer(RENDER_LAYER));
 
     let line = shapes::Line(
         Vec2::new(0., -SCREEN_HEIGHT / 2.),
@@ -137,6 +143,19 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             .insert(RenderLayers::layer(RENDER_LAYER));
         y += QUAD_SIZE;
     }
+}
+
+// Text doesnt seem to respect render layers anymore? This is a hack to work around that
+pub fn hide_text(_commands: Commands, mut query: Query<&mut Visibility, With<Text>>) {
+    query.for_each_mut(|mut r| {
+        r.is_visible = false;
+    });
+}
+
+pub fn show_text(_commands: Commands, mut query: Query<&mut Visibility, With<Text>>) {
+    query.for_each_mut(|mut r| {
+        r.is_visible = true;
+    });
 }
 
 pub fn hide_debug(_commands: Commands, mut query: Query<&mut RenderLayers, With<Camera>>) {
@@ -200,7 +219,6 @@ struct PathQuadIndex(usize);
 
 fn update_debug_collision_grid(
     mut commands: Commands,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     mut collision_grid: ResMut<PathGrid>,
     mut query: Query<(Entity, &PathQuadIndex)>,
 ) {
